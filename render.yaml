@@ -1,0 +1,42 @@
+# Render Blueprint for EthCrypt
+# Deploy: push to Git, then in Render → New → Blueprint, point at this repo.
+databases:
+  - name: ethcrypt-db
+    databaseName: ethcrypt
+    plan: free
+
+services:
+  - type: web
+    name: ethcrypt-web
+    runtime: node
+    plan: free
+    buildCommand: npm install && npx prisma generate && npx prisma db push --accept-data-loss && npm run build
+    startCommand: npm start
+    healthCheckPath: /api/health
+    envVars:
+      - key: DATABASE_URL
+        fromDatabase:
+          name: ethcrypt-db
+          property: connectionString
+      - key: NEXTAUTH_SECRET
+        generateValue: true
+      - key: NEXTAUTH_URL
+        sync: false
+      - key: NEXT_PUBLIC_APP_URL
+        sync: false
+      - key: RESEND_API_KEY
+        sync: false
+      - key: EMAIL_FROM
+        value: EthCrypt <no-reply@ethcrypt.ddu.edu.et>
+      - key: CLOUDINARY_CLOUD_NAME
+        sync: false
+      - key: CLOUDINARY_API_KEY
+        sync: false
+      - key: CLOUDINARY_API_SECRET
+        sync: false
+      - key: ADMIN_EMAIL
+        value: admin@ethcrypt.ddu.edu.et
+      - key: ADMIN_PASSWORD
+        sync: false
+      - key: NODE_VERSION
+        value: "20"
